@@ -1,1 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Training">
+<title>Pedro Training</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#2c2c2a;min-height:100vh;}
+.header{background:#fff;border-bottom:0.5px solid #d3d1c7;padding:12px 16px;position:sticky;top:0;z-index:10;}
+.header-top{display:flex;align-items:center;justify-content:space-between;}
+.app-title{font-size:17px;font-weight:600;color:#2c2c2a;}
+.app-sub{font-size:11px;color:#888780;margin-top:1px;}
+.tab-bar{display:flex;background:#fff;border-bottom:0.5px solid #d3d1c7;position:sticky;top:57px;z-index:9;}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:12px;color:#888780;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;}
+.tab.active{color:#534AB7;border-bottom-color:#534AB7;font-weight:500;}
+.page{display:none;padding:16px;padding-bottom:40px;}
+.page.active{display:block;}
+.week-nav{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.week-label{font-size:18px;font-weight:600;flex:1;}
+.btn-nav{padding:6px 14px;border-radius:20px;border:1px solid #d3d1c7;font-size:13px;background:#fff;color:#5f5e5a;cursor:pointer;}
+.day-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none;}
+.day-scroll::-webkit-scrollbar{display:none;}
+.day-btn{flex-shrink:0;padding:8px 14px;border-radius:20px;border:1px solid #d3d1c7;font-size:13px;background:#fff;color:#5f5e5a;cursor:pointer;white-space:nowrap;}
+.day-btn.active{background:#2c2c2a;color:#fff;border-color:#2c2c2a;}
+.day-btn.done{background:#EAF3DE;color:#27500A;border-color:#3B6D11;}
+.day-title{font-size:16px;font-weight:600;margin-bottom:2px;}
+.day-focus{font-size:12px;color:#888780;margin-bottom:12px;}
+.progress-row{display:flex;justify-content:space-between;font-size:12px;color:#888780;margin-bottom:4px;}
+.progress-track{background:#e0dfd8;border-radius:3px;height:5px;margin-bottom:14px;overflow:hidden;}
+.progress-fill{height:100%;background:#3B6D11;border-radius:3px;transition:width .3s;}
+.ex-card{background:#fff;border:0.5px solid #d3d1c7;border-radius:14px;margin-bottom:10px;overflow:hidden;}
+.ex-top{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;cursor:pointer;}
+.ex-check{width:24px;height:24px;border-radius:50%;border:2px solid #d3d1c7;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;}
+.ex-check.checked{background:#3B6D11;border-color:#3B6D11;}
+.ex-check.checked::after{content:'';width:6px;height:10px;border:2.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px);display:block;}
+.ex-info{flex:1;min-width:0;}
+.ex-name{font-size:14px;font-weight:600;color:#2c2c2a;margin-bottom:3px;line-height:1.3;}
+.ex-dose{font-size:12px;color:#888780;}
+.ex-tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-left:5px;vertical-align:middle;}
+.t-skill{background:#EEEDFE;color:#3C3489;}
+.t-spine{background:#EAF3DE;color:#27500A;}
+.t-flex{background:#FAEEDA;color:#633806;}
+.t-balance{background:#E1F5EE;color:#085041;}
+.t-elbow{background:#FCEBEB;color:#791F1F;}
+.chevron{font-size:13px;color:#b4b2a9;flex-shrink:0;padding-top:3px;transition:transform .2s;}
+.chevron.open{transform:rotate(180deg);}
+.ex-body{padding:0 14px 14px 14px;border-top:0.5px solid #f1efe8;}
+.ex-notes{font-size:13px;color:#5f5e5a;line-height:1.6;padding-top:10px;}
+.ex-cue{background:#f5f4ff;border-left:3px solid #534AB7;border-radius:0 8px 8px 0;padding:8px 12px;margin-top:8px;font-size:12px;color:#3C3489;line-height:1.5;font-style:italic;}
+.complete-btn{width:100%;padding:14px;background:#3B6D11;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;letter-spacing:.2px;}
+.complete-btn:disabled{background:#e0dfd8;color:#b4b2a9;}
+.complete-btn.done-state{background:#EAF3DE;color:#27500A;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.stat-card{background:#fff;border-radius:14px;padding:14px 12px;text-align:center;}
+.stat-val{font-size:28px;font-weight:700;color:#2c2c2a;}
+.stat-lbl{font-size:11px;color:#888780;margin-top:2px;}
+.goal-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;}
+.goal-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+.goal-gap{font-size:12px;color:#5f5e5a;line-height:1.5;}
+.goal-time{font-size:11px;color:#534AB7;margin-top:4px;font-weight:500;}
+.sec-label{font-size:11px;font-weight:600;color:#888780;text-transform:uppercase;letter-spacing:.08em;margin:20px 0 10px;}
+.rule-card{border-radius:14px;padding:14px;margin-bottom:10px;}
+.rule-card.danger{background:#FCEBEB;border:1px solid #F09595;}
+.rule-card.danger p{color:#A32D2D;font-size:13px;line-height:1.6;}
+.rule-card.info{background:#E6F1FB;border:1px solid #85B7EB;}
+.rule-card.info p{color:#185FA5;font-size:13px;line-height:1.6;}
+.rule-card.neutral{background:#fff;border:0.5px solid #d3d1c7;}
+.rule-card.neutral p{color:#5f5e5a;font-size:13px;line-height:1.6;}
+.rule-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+.log-item{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.log-item-name{font-size:13px;font-weight:500;}
+.log-item-date{font-size:12px;color:#888780;}
+.empty{text-align:center;color:#b4b2a9;font-size:14px;padding:40px 20px;}
+.prog-table{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.prog-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:0.5px solid #f1efe8;font-size:13px;}
+.prog-row:last-child{border-bottom:none;}
+.prog-key{color:#2c2c2a;font-weight:500;}
+.prog-val{color:#5f5e5a;text-align:right;max-width:55%;}
+</style>
+</head>
+<body>
 
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="app-title">Pedro — Month 1</div>
+      <div class="app-sub">Age 46 · BioAge 30 · L3-L4-L5 + elbow protocol</div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="showPage('train',this)">Training</button>
+  <button class="tab" onclick="showPage('overview',this)">Overview</button>
+  <button class="tab" onclick="showPage('rules',this)">Rules</button>
+  <button class="tab" onclick="showPage('log',this)">Log</button>
+</div>
+
+<div id="page-train" class="page active">
+  <div class="week-nav">
+    <button class="btn-nav" onclick="changeWeek(-1)">← Prev</button>
+    <div class="week-label" id="week-label">Week 1</div>
+    <button class="btn-nav" onclick="changeWeek(1)">Next →</button>
+  </div>
+  <div class="day-scroll" id="day-tabs"></div>
+  <div class="day-title" id="day-title"></div>
+  <div class="day-focus" id="day-focus"></div>
+  <div class="progress-row"><span id="prog-text">0/0 exercises</span><span id="prog-pct">0%</span></div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  <div id="ex-list"></div>
+  <button class="complete-btn" id="complete-btn" onclick="markDone()">Mark day complete</button>
+</div>
+
+<div id="page-overview" class="page">
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-val" id="ov-days">0</div><div class="stat-lbl">Days done</div></div>
+    <div class="stat-card"><div class="stat-val" id="ov-week">1/4</div><div class="stat-lbl">Week</div></div>
+    <div class="stat-card"><div class="stat-val" id="ov-ex">0</div><div class="stat-lbl">Exercises</div></div>
+  </div>
+  <div class="sec-label">Goals and gaps</div>
+  <div class="goal-card"><div class="goal-name">Freestanding HSPU</div><div class="goal-gap">Shoulder ROM 68° → need 78°+. Handstand stability front-to-back.</div><div class="goal-time">6–10 weeks once ROM reaches 78°</div></div>
+  <div class="goal-card"><div class="goal-name">10 bar muscle-ups</div><div class="goal-gap">Bar transition technique + volume capacity. Ring MU already exists.</div><div class="goal-time">8–12 weeks</div></div>
+  <div class="goal-card"><div class="goal-name">Planche push-up</div><div class="goal-gap">Tuck planche not yet possible. Straight-arm scap strength is the gap.</div><div class="goal-time">6–9 months conservative</div></div>
+  <div class="goal-card"><div class="goal-name">Ab wheel standing (feet)</div><div class="goal-gap">Knees full extension: no problem. Elevated hands from feet: start week 2.</div><div class="goal-time">3–5 weeks with correct progression</div></div>
+  <div class="goal-card"><div class="goal-name">One-arm pull-up</div><div class="goal-gap">Forearm assist exists + 15 strict pull-ups. Closer than most.</div><div class="goal-time">4–8 months</div></div>
+  <div class="sec-label">Week 1→4 progressions</div>
+  <div class="prog-table">
+    <div class="prog-row"><span class="prog-key">Weighted pull-ups</span><span class="prog-val">BW wks 1–2 · +10kg wk3 if no elbow</span></div>
+    <div class="prog-row"><span class="prog-key">MU negative</span><span class="prog-val">4s → 5s (wk3) → 6s (wk4)</span></div>
+    <div class="prog-row"><span class="prog-key">Tuck planche</span><span class="prog-val">Log seconds · +3s target/week</span></div>
+    <div class="prog-row"><span class="prog-key">Handstand hold</span><span class="prog-val">10s → 15s target wk4</span></div>
+    <div class="prog-row"><span class="prog-key">Ab wheel</span><span class="prog-val">Knees full · feet+box wk2 · lower box weekly</span></div>
+    <div class="prog-row"><span class="prog-key">Shoulder ROM</span><span class="prog-val">68° → target 72–74° wk4</span></div>
+    <div class="prog-row"><span class="prog-key">Max efforts</span><span class="prog-val">None until week 4 Friday</span></div>
+  </div>
+</div>
+
+<div id="page-rules" class="page">
+  <div class="rule-card danger">
+    <div class="rule-title">L3-L4-L5</div>
+    <p>No spinal flexion under load. No passive lumbar hyperextension at end range. Left leg radiating sensation = stop immediately. Ab wheel: exhale rolling out, brace before end range.</p>
+  </div>
+  <div class="rule-card danger">
+    <div class="rule-title">Medial elbow</div>
+    <p>Inner elbow ache during or after = reduce pulling volume 30% that week. No weighted pull-ups weeks 1–2. Week 3: +10kg only if zero elbow sensation all of weeks 1–2. Max weight (+30kg) not before month 2.</p>
+  </div>
+  <div class="rule-card info">
+    <div class="rule-title">Handstand balance cue (key insight)</div>
+    <p>Front-to-back instability = wrist flexion/extension control. Falling forward: press fingertips harder. Falling back: press heel of hand harder. Never grip the whole hand equally — that removes the control mechanism.</p>
+  </div>
+  <div class="rule-card neutral">
+    <div class="rule-title">Ab wheel progression</div>
+    <p>Knees: full extension, high volume, no restrictions. Feet: start with hands elevated on box (shin height) week 2. Lower box by one notch per week. Floor-level from feet only when zero lumbar sensation at all previous heights.</p>
+  </div>
+  <div class="rule-card neutral">
+    <div class="rule-title">Straight-arm / tendon rule</div>
+    <p>Muscle soreness = ok. Any joint sensation (elbow, wrist, shoulder) = reduce load 30% and hold one extra week. Connective tissue adapts 3–4x slower than muscle. Never skip wrist conditioning on Tuesday.</p>
+  </div>
+  <div class="rule-card neutral">
+    <div class="rule-title">General</div>
+    <p>3 min rest between skill sets. 2 min between strength sets. No two heavy pulling days back to back. Sleep 7–9h — connective tissue recovers during sleep, not training.</p>
+  </div>
+</div>
+
+<div id="page-log" class="page">
+  <div class="sec-label">Completed days</div>
+  <div id="log-list"><div class="empty">No days completed yet.<br>Get started!</div></div>
+</div>
+
+<script>
+const DAYS=[
+  {key:'mon',label:'Monday',name:'Push + Handstand + Straight-arm',focus:'HSPU progression · Tuck planche · Shoulder ROM',
+   exercises:[
+    {name:'Freestanding handstand hold',dose:'5×max hold · target 10→20 sec by wk4',tag:'skill',
+     notes:'Freestanding, no wall. Focus entirely on finger pressure balance. Between attempts: wrist circles 20 sec.',
+     cue:'Falling forward = press fingertips harder. Falling back = press heel of hand. Never grip the whole hand equally.'},
+    {name:'HSPU negative (wall)',dose:'4×3–4 reps · 4 sec descent · wk3: 5 sec',tag:'skill',
+     notes:'Kick up to wall handstand. Lower head to floor in 4 sec, push back up. If you can do full reps: max reps then fill sets with negatives.',
+     cue:'Scapulas must elevate at lockout — push shoulders up toward ears.'},
+    {name:'Tuck planche attempt',dose:'4×max hold · 3 min rest · log seconds',tag:'skill',
+     notes:'Biggest gap relative to your other skills. Hands on floor or parallettes, round back, tuck knees, try to lift off. Even 2–3 sec is a win week 1. This will be the slowest-moving metric — normal.',
+     cue:'Push floor through the earth. Scapulas protract AND depress simultaneously.'},
+    {name:'Scapular push-ups',dose:'3×15 reps · straight arms locked',tag:'skill',
+     notes:'Arms completely locked throughout. Push floor away at top (protraction), sink at bottom (retraction). Direct motor pattern for tuck planche and maltese.',
+     cue:'Any elbow bend = reset the rep.'},
+    {name:'Shoulder mobility block A+B',dose:'10 min · after lifting',tag:'flex',
+     notes:'Block A: foam roller thoracic (3 heights 60s each), thread the needle (10 each), open book (8 each). Block B: sleeper stretch (45s each side), cross-body (45s each side), wall slides (3×10).',
+     cue:'After warm tissue only. Tension — never pain.'},
+  ]},
+  {key:'tue',label:'Tuesday',name:'Pull + Muscle-up + One-arm',focus:'Bar MU transition · Chest-to-bar · Forearm-assist one-arm',
+   exercises:[
+    {name:'Bar muscle-up negative',dose:'4×3 reps · 4 sec descent · 3 min rest',tag:'skill',
+     notes:'Jump or kip to support above bar. Lower slowly through the transition — the bar transition is sharper than rings. Wrist pronation is harder. Control it fully. Wk3: 5 sec. Wk4: 6 sec.',
+     cue:'Slow down extra at the transition point. That is where bar MU lives or dies.'},
+    {name:'Chest-to-bar pull-up',dose:'5×max clean reps · log each set · no kipping',tag:'skill',
+     notes:'Chest touches bar every rep. Week 1: find your baseline numbers. Week 3: +1 rep per set target. No added weight wks 1–2. Week 3: +10kg if zero medial elbow sensation.',
+     cue:'Pull elbows to hips, not hands to chin.'},
+    {name:'Forearm-assist one-arm pull-up',dose:'4×3 reps each arm · 3 min rest · weaker arm first',tag:'skill',
+     notes:'Forearm of free arm grips working arm — minimum assistance. Log which arm feels stronger. Week 3: reduce forearm assistance slightly.',
+     cue:'Working shoulder stays packed — depressed, not shrugging toward ear.'},
+    {name:'Face pulls + external rotation',dose:'3×15–20 reps · cable or band',tag:'balance',
+     notes:'Corrects back-chest imbalance (EGYM data). Protects rotator cuff and medial elbow by strengthening antagonists to all the pulling volume.',
+     cue:null},
+    {name:'Wrist + forearm conditioning',dose:'5 min · non-negotiable',tag:'elbow',
+     notes:'Wrist circles (30s each direction). Wrist push-ups on knuckles (2×10). Reverse wrist curls with light band (2×15). Conditions medial elbow tendons directly.',
+     cue:'5 min now saves 2 months of recovery later.'},
+  ]},
+  {key:'wed',label:'Wednesday',name:'Mobility + Active recovery',focus:'Thoracic · Shoulder capsule · Hips · 30 min max',
+   exercises:[
+    {name:'Thoracic mobility full sequence',dose:'10 min',tag:'flex',
+     notes:'Foam roller (3 heights, 60s each). Cat-cow (10). Thoracic rotation in quadruped (10 each). Open book lateral (8 each). The session that makes HSPU progress happen.',
+     cue:null},
+    {name:'Shoulder overhead stretch',dose:'2×60 sec each side · doorframe or band',tag:'flex',
+     notes:'Arm at 90° in doorframe, rotate body away slowly. Specific for last 15–20° of overhead ROM needed for freestanding HSPU. Progress 1–2° per week.',
+     cue:'Tension only — never pain.'},
+    {name:'Glute activation + bird-dog',dose:'3×8 each side · 2 sec hold',tag:'spine',
+     notes:'Quadruped. Extend opposite arm and leg simultaneously. Lumbar neutral throughout. Strong glutes = less load on L3-L5 in every exercise.',
+     cue:null},
+    {name:'Wrist conditioning',dose:'5 min',tag:'elbow',
+     notes:'Circles, wrist push-ups on knuckles, wrist extension holds on floor (2×20s). Keeps medial elbow adaptations going on recovery days.',
+     cue:null},
+  ]},
+  {key:'thu',label:'Thursday',name:'Lower body + Core',focus:'Glutes · Hamstrings · Ab wheel · Anti-rotation core',
+   exercises:[
+    {name:'Bulgarian split squat',dose:'4×6–8 each leg · dumbbells · wk3: +2 lbs',tag:'spine',
+     notes:'Rear foot elevated. Dumbbells at sides — no barbell (axial load restriction). Maintains leg strength without compressing L3-L5.',
+     cue:'Front shin vertical. Lumbar neutral throughout.'},
+    {name:'Romanian deadlift, dumbbells',dose:'4×8 reps',tag:'spine',
+     notes:'Hinge from hips not waist. Stop before any lower back rounding. Safer than barbell RDL with disc history.',
+     cue:'Push hips back, not down.'},
+    {name:'Pallof press',dose:'3×10 each side · 2 sec hold',tag:'spine',
+     notes:'Band or cable at chest height. Pure anti-rotation — zero spinal movement. Strengthens L3-L5 stabilizers needed for ab wheel and planche.',
+     cue:'Hips squared. Do not let it rotate you.'},
+    {name:'Ab wheel',dose:'Knees: 3×max full extension · Feet+box: wk2 onwards',tag:'spine',
+     notes:'Knees: full extension, no restrictions, high volume. From week 2: hands on box at shin height from feet, full extension. Lower box one notch per week. Floor-level only when zero lumbar sensation at all previous heights.',
+     cue:'Exhale rolling out. Brace before end range — not after you feel it.'},
+  ]},
+  {key:'fri',label:'Friday',name:'Skills + Weekly test',focus:'MU attempts · Handstand · ROM measure · Log everything',
+   exercises:[
+    {name:'Bar muscle-up attempts',dose:'Wks 1–3: 4×2 submaximal · Wk4: 1 max set',tag:'skill',
+     notes:'Weeks 1–3: 2 reps per set, never to failure. 5 min rest. If rep 2 transition uglier than rep 1: stop that set. Week 4: one max effort after full rest. Log the number.',
+     cue:'Quality over quantity every single set.'},
+    {name:'Freestanding handstand max hold',dose:'3 attempts · log best time',tag:'skill',
+     notes:'Weekly measurement. Is front-to-back stability improving? Target: 15 sec by week 4. If still unstable: add 5 min fingertip drill (HS against wall, feet light, shift weight to fingertips only).',
+     cue:null},
+    {name:'Tuck planche max hold',dose:'2 attempts · log seconds',tag:'skill',
+     notes:'Weekly measurement. Even 1 extra second is real progress. Slowest metric in the program — completely normal and expected.',
+     cue:null},
+    {name:'Full shoulder mobility A+B+C',dose:'15 min · measure and record ROM',tag:'flex',
+     notes:'Block A+B + Block C: band pull-aparts (2×15 horizontal and overhead), dislocations with pole (2×10, reduce grip 1cm/week), wrist circles. Measure ROM arm-against-wall every Friday. Target: 72–74° by week 4.',
+     cue:null},
+  ]},
+];
+
+let week=1,day=0,openEx={};
+let done={},exDone={};
+try{done=JSON.parse(localStorage.getItem('pt_done')||'{}');}catch(e){}
+try{exDone=JSON.parse(localStorage.getItem('pt_ex')||'{}');}catch(e){}
+
+function dk(w,d){return `w${w}_${DAYS[d].key}`;}
+function ek(w,d,i){return `w${w}_${DAYS[d].key}_${i}`;}
+
+function save(){
+  try{localStorage.setItem('pt_done',JSON.stringify(done));}catch(e){}
+  try{localStorage.setItem('pt_ex',JSON.stringify(exDone));}catch(e){}
+}
+
+function showPage(p,btn){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  btn.classList.add('active');
+  if(p==='overview')renderOverview();
+  if(p==='log')renderLog();
+}
+
+function changeWeek(d){
+  week=Math.max(1,Math.min(4,week+d));
+  renderWeek();
+}
+
+function selectDay(i){
+  day=i;openEx={};
+  document.querySelectorAll('.day-btn').forEach((b,idx)=>{
+    b.classList.toggle('active',idx===i);
+  });
+  renderDay();
+}
+
+function renderWeek(){
+  document.getElementById('week-label').textContent='Week '+week;
+  const tabs=document.getElementById('day-tabs');
+  tabs.innerHTML='';
+  DAYS.forEach((d,i)=>{
+    const isDone=done[dk(week,i)];
+    const b=document.createElement('button');
+    b.className='day-btn'+(i===day?' active':'')+(isDone?' done':'');
+    b.textContent=d.label+(isDone?' ✓':'');
+    b.onclick=()=>selectDay(i);
+    tabs.appendChild(b);
+  });
+  renderDay();
+}
+
+function renderDay(){
+  const d=DAYS[day];
+  document.getElementById('day-title').textContent=d.name;
+  document.getElementById('day-focus').textContent=d.focus;
+  const list=document.getElementById('ex-list');
+  list.innerHTML='';
+  let cnt=0;
+  const tagLabel={skill:'SKILL',spine:'SPINE SAFE',flex:'MOBILITY',balance:'BALANCE',elbow:'ELBOW CARE'};
+  d.exercises.forEach((ex,i)=>{
+    const k=ek(week,day,i);
+    const checked=!!exDone[k];
+    if(checked)cnt++;
+    const open=openEx[i];
+    const card=document.createElement('div');
+    card.className='ex-card';
+    card.innerHTML=`
+      <div class="ex-top" onclick="toggleEx(${i})">
+        <div class="ex-check${checked?' checked':''}" onclick="event.stopPropagation();checkEx(${i})"></div>
+        <div class="ex-info">
+          <div class="ex-name">${ex.name}<span class="ex-tag t-${ex.tag}">${tagLabel[ex.tag]}</span></div>
+          <div class="ex-dose">${ex.dose}</div>
+        </div>
+        <div class="chevron${open?' open':''}">▼</div>
+      </div>
+      ${open?`<div class="ex-body"><div class="ex-notes">${ex.notes}${ex.cue?`<div class="ex-cue">${ex.cue}</div>`:''}</div></div>`:''}
+    `;
+    list.appendChild(card);
+  });
+  const total=d.exercises.length;
+  const pct=Math.round(cnt/total*100);
+  document.getElementById('prog-text').textContent=`${cnt}/${total} exercises`;
+  document.getElementById('prog-pct').textContent=`${pct}%`;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  const btn=document.getElementById('complete-btn');
+  const isDone=done[dk(week,day)];
+  btn.textContent=isDone?'Day completed ✓':'Mark day complete';
+  btn.disabled=!!isDone;
+  btn.className='complete-btn'+(isDone?' done-state':'');
+}
+
+function toggleEx(i){
+  openEx[i]=!openEx[i];
+  renderDay();
+}
+
+function checkEx(i){
+  const k=ek(week,day,i);
+  exDone[k]=!exDone[k];
+  save();
+  renderDay();
+}
+
+function markDone(){
+  done[dk(week,day)]=new Date().toISOString();
+  save();
+  renderWeek();
+}
+
+function renderOverview(){
+  let d=0,ex=0;
+  for(let w=1;w<=4;w++) DAYS.forEach((_,di)=>{
+    if(done[dk(w,di)])d++;
+    _.exercises.forEach((__,ei)=>{if(exDone[ek(w,di,ei)])ex++;});
+  });
+  document.getElementById('ov-days').textContent=d;
+  document.getElementById('ov-week').textContent=week+'/4';
+  document.getElementById('ov-ex').textContent=ex;
+}
+
+function renderLog(){
+  const entries=[];
+  for(let w=1;w<=4;w++) DAYS.forEach((d,di)=>{
+    const k=dk(w,di);
+    if(done[k])entries.push({w,name:d.name,date:done[k]});
+  });
+  const list=document.getElementById('log-list');
+  if(!entries.length){list.innerHTML='<div class="empty">No days completed yet.<br>Get started!</div>';return;}
+  entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  list.innerHTML=entries.map(e=>{
+    const ds=new Date(e.date).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'2-digit'});
+    return `<div class="log-item"><div class="log-item-name">Week ${e.w} — ${e.name}</div><div class="log-item-date">${ds}</div></div>`;
+  }).join('');
+}
+
+renderWeek();
+</script>
+</body>
+</html>
